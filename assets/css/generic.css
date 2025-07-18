@@ -1,0 +1,50 @@
+.intro-card {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  background: #fff;
+  border-radius: 1em;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 2em;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.intro-card h2 {
+  margin-top: 0;
+}
+
+.intro-card ul {
+  margin-top: 0.5em;
+}
+
+.quellen-card {
+  margin: 2em auto 2em auto;
+  background: #fff;
+  border-radius: 1em;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 2em;
+  max-width: 500px;
+  text-align: center;
+}
+
+.quellen-card h2 {
+  margin-top: 0;
+}
+
+.quellen-card a {
+  display: inline-block;
+  margin-top: 1em;
+  padding: 0.75em 2em;
+  background: #0077cc;
+  color: #fff;
+  border-radius: 0.5em;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1em;
+  transition: background 0.2s;
+}
+
+.quellen-card a:hover {
+  background: #005fa3;
+} 
