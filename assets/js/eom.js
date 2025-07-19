@@ -16,8 +16,11 @@ function setupYesNoQuiz() {
     btn.addEventListener('click', function() {
       const block = this.closest('.prompt-block');
       const idx = promptBlocks.indexOf(block);
+      const answerValue = this.getAttribute('data-value');
+      
       // Save answer
-      answers[idx - 1] = this.getAttribute('data-value');
+      answers[idx - 1] = answerValue;
+      
       // Highlight selection
       block.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
       this.classList.add('selected');
@@ -36,9 +39,15 @@ function setupYesNoQuiz() {
 
 function showResult(answers) {
   const topic = getCurrentTopic();
+  console.log('=== DEBUG showResult ===');
+  console.log('Detected topic:', topic);
+  console.log('Answers:', answers);
+  
   const resultBlock = document.getElementById('result-block');
   if (!resultBlock) return;
   let result = getResultForAnswers(topic, answers);
+  console.log('Result:', result);
+  
   resultBlock.innerHTML = `
     <div class="prompt-card result-card">
       <h2>Ihr Ergebnis</h2>
@@ -145,7 +154,13 @@ function getResultForAnswers(topic, answers) {
   
   // Medienförderung Empfehlungen
   if (topic === 'medienförderung') {
-    if (answers[0] === 'ja' && answers[1] === 'ja') {
+    // Based on the provided answer combinations, most combinations should show Fernsehfonds Austria and Privatrundfonds
+    // Only specific combinations should show Nichtkommerzieller Rundfunkfonds and Zustellförderung
+    
+    // Check if we have at least 2 "ja" answers in the first 4 questions
+    const jaCount = answers.slice(0, 4).filter(answer => answer === 'ja').length;
+    
+    if (jaCount >= 2) {
       return {
         description: 'Unabhängige Medien und transparente Förderung sind dir wichtig. Der Fernsehfonds Austria und Privatrundfunkfonds fördern genau das.',
         initiatives: [
@@ -153,35 +168,13 @@ function getResultForAnswers(topic, answers) {
           { name: 'Privatrundfunkfonds', anchor: 'medien' }
         ]
       };
-    } else if (answers[2] === 'ja' && answers[4] === 'ja') {
-      return {
-        description: 'Digitale Medienangebote und Vielfalt sind dir wichtig. Der Fonds für digitale Transformation und Nichtkommerzieller Rundfunkfonds fördern genau das.',
-        initiatives: [
-          { name: 'Fonds für digitale Transformation', anchor: 'medien' },
-          { name: 'Nichtkommerzieller Rundfunkfonds', anchor: 'medien' }
-        ]
-      };
-    } else if (answers[3] === 'ja' && answers[4] === 'ja') {
-      return {
-        description: 'Gerechte Verteilung und vielfältige Angebote sind dir wichtig. Der Fernsehfonds Austria und die Zustellförderung unterstützen verschiedene Medien.',
-        initiatives: [
-          { name: 'Fernsehfonds Austria', anchor: 'medien' },
-          { name: 'Zustellförderung', anchor: 'medien' }
-        ]
-      };
-    } else if (answers[1] === 'ja' && answers[2] === 'ja') {
-      return {
-        description: 'Transparenz und digitale Medienangebote sind dir wichtig. Der Privatrundfunkfonds und Fonds für digitale Transformation sind relevant.',
-        initiatives: [
-          { name: 'Privatrundfunkfonds', anchor: 'medien' },
-          { name: 'Fonds für digitale Transformation', anchor: 'medien' }
-        ]
-      };
     } else {
+      // Default case for combinations with fewer "ja" answers
       return {
         description: 'Du interessierst dich für Medienförderung. Entdecke weitere Projekte wie die Barrierefreiheitsförderung und andere Medieninitiativen.',
         initiatives: [
-          { name: 'Alle Medienförderungs-Projekte', anchor: 'medien' }
+          { name: 'Nichtkommerzieller Rundfunkfonds', anchor: 'medien' },
+          { name: 'Zustellförderung', anchor: 'medien' }
         ]
       };
     }
@@ -242,11 +235,78 @@ function getResultForAnswers(topic, answers) {
 }
 
 function getCurrentTopic() {
+  // First check if the topic is set globally (most reliable)
+  if (window.currentTopic) {
+    console.log('Detected topic from global variable:', window.currentTopic);
+    return window.currentTopic;
+  }
+  
   const path = window.location.pathname;
-  if (path.includes('digitalekompetenz')) return 'digitalekompetenz';
-  if (path.includes('egovernment')) return 'egovernment';
-  if (path.includes('ecommerce')) return 'ecommerce';
-  if (path.includes('medienförderung') || path.includes('medienförderung')) return 'medienförderung';
+  const href = window.location.href;
+  const filename = path.split('/').pop(); // Get the filename from the path
+  
+  console.log('=== DEBUG getCurrentTopic ===');
+  console.log('Path:', path);
+  console.log('Href:', href);
+  console.log('Filename:', filename);
+  console.log('Document title:', document.title);
+  
+  // Check filename first (most reliable)
+  if (filename === 'digitalekompetenz.html') {
+    console.log('Detected: digitalekompetenz (from filename)');
+    return 'digitalekompetenz';
+  }
+  if (filename === 'egovernment.html') {
+    console.log('Detected: egovernment (from filename)');
+    return 'egovernment';
+  }
+  if (filename === 'ecommerce.html') {
+    console.log('Detected: ecommerce (from filename)');
+    return 'ecommerce';
+  }
+  if (filename === 'medienförderung.html') {
+    console.log('Detected: medienförderung (from filename)');
+    return 'medienförderung';
+  }
+  
+  // Fallback to path/href checking
+  if (path.includes('digitalekompetenz') || href.includes('digitalekompetenz')) {
+    console.log('Detected: digitalekompetenz (from path/href)');
+    return 'digitalekompetenz';
+  }
+  if (path.includes('egovernment') || href.includes('egovernment')) {
+    console.log('Detected: egovernment (from path/href)');
+    return 'egovernment';
+  }
+  if (path.includes('ecommerce') || href.includes('ecommerce')) {
+    console.log('Detected: ecommerce (from path/href)');
+    return 'ecommerce';
+  }
+  if (path.includes('medienförderung') || href.includes('medienförderung')) {
+    console.log('Detected: medienförderung (from path/href)');
+    return 'medienförderung';
+  }
+  
+  // Additional check based on document title
+  if (document.title.includes('Medienförderung')) {
+    console.log('Detected: medienförderung (from title)');
+    return 'medienförderung';
+  }
+  if (document.title.includes('E-Commerce')) {
+    console.log('Detected: ecommerce (from title)');
+    return 'ecommerce';
+  }
+  if (document.title.includes('E-Government')) {
+    console.log('Detected: egovernment (from title)');
+    return 'egovernment';
+  }
+  if (document.title.includes('Digitale Kompetenz')) {
+    console.log('Detected: digitalekompetenz (from title)');
+    return 'digitalekompetenz';
+  }
+  
+  console.log('Default fallback: digitalekompetenz');
+  // Default fallback: digitalekompetenz
   return 'digitalekompetenz';
 }
 
